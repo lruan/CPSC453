@@ -1,148 +1,41 @@
 #ifndef OBJMODEL_H
 #define OBJMODEL_H
 
-/***************************************************************************
- *
- * OBJmodel, a helper class for loading 3D data from OBJ files. This isn't
- *  designed to be a complete loader, so for instance the output isn't ideal
- *  for use with OpenGL. Still, it should be enough to get you started.
- *
- *  Author: Haysn Hornbeck
- */
-
-
-//***** INCLUDES
-
-#include <cmath>
-using std::isnan;
-
-#include <cstddef>
-using std::size_t;
-
-
-#include <array>
-using std::array;
-
-#include <iostream>
-using std::cerr;
-using std::cout;
-using std::endl;
-
-#include <fstream>
-using std::fstream;
-using std::ifstream;
-
-#include <memory>
-using std::make_shared;
-using std::shared_ptr;
-
-#include <stdexcept>
-using std::invalid_argument;
-using std::out_of_range;
-
-#include <string>
-using std::getline;
-using std::stof;
-using std::stoi;
-using std::string;
-
+#include "shared.h"
+#include "alice.h"
+#include <glm/glm.hpp>
 #include <vector>
+
 using std::vector;
 
-
-#include <boost/tokenizer.hpp>
-using boost::char_separator;
-using boost::tokenizer;
-
-
-
-//***** DATA DECLARATIONS
-
-typedef unsigned char uchar;
-typedef unsigned int uint;
-
-// build up what we need to create a triangle
-typedef struct {
-
-	float x;
-	float y;
-	float z;
-	float w;
-
-	} Position;
-
-typedef struct {
-
-	float x;
-	float y;
-	float z;
-
-	} Normal;
-
-typedef struct {
-
-	float s;
-	float t;
-	float u;
-
-	} TexCoord;
-
-typedef struct {
-
-	Position pos;
-	Normal norm;
-	TexCoord tex;
-
-	} Vertex;
-
-typedef struct {
-
-	array<Vertex,3> vertex;
-
-	} Triangle;
-
-
-//***** CLASSES
-
-// load up an OBJ file, and provide a friendly interface
-class OBJmodel {
-
-	private:
-	string filename;		// the name of the current object
-	vector<Triangle> contents;	//  and its contents
-
-	vector<Position> pos;		// caches used during the reading process
-	vector<Normal> norm;
-	vector<TexCoord> tex;
-	vector<Triangle> tempContents;	//  including the future "contents"
-
-	string buffer;			// a buffer to store lines in, and separators
-	char_separator<char> whitespace;
-	char_separator<char> faceSeparator;
-
-	bool readVertex();		// a helper to read in vertex data
-	bool readFace();		//  and the same for faces
-
+class ObjModel {
 	public:
-	OBJmodel();
+		float width, height;
 
-	bool load( string filename );	// load up an OBJ file
+		ObjModel();
 
-					// basic setters/getters
-	bool isLoaded() { return contents.size() > 0; }
-	string getFilename() { return filename; }
-	uint triangleCount() { return contents.size(); }
+//		bool LoadObjModel(const char * file);
 
-					// retrieve some geometry
-	Triangle& operator[]( size_t index );
-	const Triangle& operator[]( size_t index ) const;
+		GLuint VertexArrayID, vertexbuffer, uvbuffer, nbuffer;
+		GLuint programID;
+	
+		GLuint Texture;
+		GLuint TextureID;	
+	
+		GLuint AmbientOcclusion;
+		GLuint AmbientOcclusionID;
 
-	};
+		vector<float> objectCenter;
 
+	    vector<glm::vec3> vertex;
+	    vector<glm::vec2> uvvertex;
+		vector<glm::vec3> n;
 
-//***** STATIC METHODS
+		void loadObject(const char* objFile);
 
-// mainly for testing purposes
-int main( const int, const char** );
+		void Render(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
+
+		vector<float> shapeDimension();
+};
 
 #endif

@@ -3,6 +3,8 @@
 // Now I probably should give it a name.
 // Call it "A Loading Image Central Explorer"
 
+#pragma once
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -13,8 +15,8 @@ class ALICE {
 
         ALICE();
 
-        unsigned char* loadImage(const char* file)
+        unsigned char* loadImage(const char* file);
         void freePixels();
 
         GLuint LoadTexture(ALICE alice);
-}
+};

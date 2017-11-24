@@ -4,19 +4,19 @@
 #include <GLFW/glfw3.h>
 
 #include "alice.h"
+#include "stb_image.h"
 
 ALICE::ALICE() {
     pixels = nullptr;
 }
 
 unsigned char* ALICE::loadImage(const char* file) {
-    stbi_set_flip_vertically_on_load(true);
     pixels = stbi_load(file, &width, &height, &channel, 0);
 
     return pixels;
 }
 
-void ALICE:freePixels() {
+void ALICE::freePixels() {
     stbi_image_free(pixels);
 }
 
@@ -36,5 +36,4 @@ GLuint ALICE::LoadTexture(ALICE alice) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, alice.width, alice.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, alice.pixels);
 
     return texture;
-}
 }
