@@ -1,11 +1,10 @@
 // ALICE.h
 // Originally used because ALICE was the image being loaded.
 // Now I probably should give it a name.
-// Call it "A Loading Image Central Explorer"
+// Call it "A Loading Image Class Extension"
 
 #pragma once
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 class ALICE {

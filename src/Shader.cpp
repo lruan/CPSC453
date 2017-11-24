@@ -12,11 +12,16 @@ using namespace std;
 
 #include <stdlib.h>
 #include <string.h>
+#include "shared.h"
 
-#include <GL/glew.h>
+#define GLFW_INCLUDE_GLCOREARB
 
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
+#define GL_GLEXT_PROTOTYPES
 
+#include <GLFW/glfw3.h>
+
+
+GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path) {
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
@@ -30,7 +35,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 			VertexShaderCode += "\n" + Line;
 		VertexShaderStream.close();
 	}else{
-		printf("Impossible to open %s. Are you in the right directory?\n", vertex_file_path);
+		printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", vertex_file_path);
 		getchar();
 		return 0;
 	}
@@ -50,6 +55,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 
 	// Compile Vertex Shader
+	printf("Compiling shader : %s\n", vertex_file_path);
 	char const * VertexSourcePointer = VertexShaderCode.c_str();
 	glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
 	glCompileShader(VertexShaderID);
@@ -66,6 +72,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 
 	// Compile Fragment Shader
+	printf("Compiling shader : %s\n", fragment_file_path);
 	char const * FragmentSourcePointer = FragmentShaderCode.c_str();
 	glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
 	glCompileShader(FragmentShaderID);
@@ -82,26 +89,21 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 
 
 	// Link the program
-	GLuint ProgramID = glCreateProgram();
-	glAttachShader(ProgramID, VertexShaderID);
-	glAttachShader(ProgramID, FragmentShaderID);
-	glLinkProgram(ProgramID);
+	printf("Linking program\n");
+	GLuint id = glCreateProgram();
+	glAttachShader(id, VertexShaderID);
+	glAttachShader(id, FragmentShaderID);
+	glLinkProgram(id);
 
 	// Check the program
-	glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	glGetProgramiv(id, GL_LINK_STATUS, &Result);
+	glGetProgramiv(id, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if ( InfoLogLength > 0 ){
 		std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-		glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+		glGetProgramInfoLog(id, InfoLogLength, NULL, &ProgramErrorMessage[0]);
 		printf("%s\n", &ProgramErrorMessage[0]);
 	}
 
-	
-	glDetachShader(ProgramID, VertexShaderID);
-	glDetachShader(ProgramID, FragmentShaderID);
-	
-	glDeleteShader(VertexShaderID);
-	glDeleteShader(FragmentShaderID);
+	return id;
 
-	return ProgramID;
 }

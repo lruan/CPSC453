@@ -1,20 +1,26 @@
 #include "objmodel.h"
 #include "objloader.hpp"
-#include "shader.hpp"
 #include "shared.h"
 
+#include <GLFW/glfw3.h>
 // Constructor copy-pasta'd from HW2, reorganized.
 
 ObjModel::ObjModel() {
 
-    programID = LoadShaders( "data/vertex.glsl", "data/fragment.glsl");
+	std::cout << "Constructor\n";
 
-	glGenVertexArrays(1, &VertexArrayID);
+    programID = LoadShaders("data/vertex.glsl", "data/fragment.glsl");
+
+	std::cout << "constructor1\n";
+  	glGenVertexArrays(1, &VertexArrayID);
+	std::cout << "constructor2\n";
 	glBindVertexArray(VertexArrayID);
 
-	glGenVertexArrays(1, &vertexbuffer);
-	glGenVertexArrays(1, &uvbuffer);
-	glGenVertexArrays(1, &nbuffer);
+	glGenBuffers(1, &vertexbuffer);
+	glGenBuffers(1, &uvbuffer);
+	glGenBuffers(1, &nbuffer);
+
+	std::cout << "constructor3\n";
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -30,6 +36,7 @@ ObjModel::ObjModel() {
 }
 
 void ObjModel::loadObject(const char* objFile) {
+
 	if(!loadOBJ(objFile, vertex, uvvertex, n))
 	{
 		std::cerr << "Error Loading Object File!" << std::endl;
@@ -37,6 +44,8 @@ void ObjModel::loadObject(const char* objFile) {
 	}
 
 	shapeDimension();
+
+	glBindVertexArray(VertexArrayID);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(glm::vec3), &vertex[0], GL_STATIC_DRAW);
@@ -48,6 +57,13 @@ void ObjModel::loadObject(const char* objFile) {
 	glBufferData(GL_ARRAY_BUFFER, n.size() * sizeof(glm::vec3), &n[0], GL_STATIC_DRAW);
 }
 
+void ObjModel::loadTexture(const char* texFile) {
+	ALICE alice = ALICE();
+}
+
+void ObjModel::loadOcclusion(const char* aoFile) {
+
+}
 
 // Credit to Jayson for helping me through this part.
 vector<float> ObjModel::shapeDimension() {
@@ -118,7 +134,7 @@ void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p) {
 
 	glUniform1i(TextureID, 0);
 
-	glActiveTexture(GL_TEXTURE1);
+	//glActiveTexture(GL_TEXTURE1);
 
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size());
 	

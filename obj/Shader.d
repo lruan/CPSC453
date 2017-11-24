@@ -1,1 +1,1 @@
-obj/Shader.o: src/Shader.cpp
+obj/Shader.o: src/Shader.cpp inc/shared.h

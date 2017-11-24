@@ -1,6 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "alice.h"
@@ -34,6 +33,8 @@ GLuint ALICE::LoadTexture(ALICE alice) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, alice.width, alice.height, 0, GL_RGB, GL_UNSIGNED_BYTE, alice.pixels);
     else if(alice.channel == 4)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, alice.width, alice.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, alice.pixels);
+    else if(alice.channel == 1)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, alice.width, alice.height, 0, GL_RED, GL_UNSIGNED_BYTE, alice.pixels);
 
     return texture;
 }
