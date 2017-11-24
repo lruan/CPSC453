@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 
 #include "objloader.hpp"
+#include "shared.h"
+#include "alice.h"
 
 // Very, VERY simple OBJ loader.
 // Here is a short list of features a real function would provide : 

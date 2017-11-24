@@ -17,5 +17,4 @@ class ALICE {
         unsigned char* loadImage(const char* file);
         void freePixels();
 
-        GLuint LoadTexture(ALICE alice);
-};
+    };

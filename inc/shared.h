@@ -26,7 +26,9 @@ using std::vector;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "alice.h"
 
 GLuint LoadShaders(const char* vertex, const char* fragment);
+GLuint LoadTexture (ALICE alice);
 
 #endif

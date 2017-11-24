@@ -20,8 +20,8 @@ class ObjModel {
 		GLuint programID;
 	
 		GLuint Texture;
-		GLuint TextureID;	
-	
+		GLuint TextureID;
+
 		GLuint AmbientOcclusion;
 		GLuint AmbientOcclusionID;
 
@@ -32,9 +32,11 @@ class ObjModel {
 		vector<glm::vec3> n;
 
 		void loadObject(const char* objFile);
+		void loadTexture(const char* texFile);
+		void loadOcclusion(const char* aoFile);
 
-		void Render(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
-
+		void Render(glm::mat4 model, glm::mat4 view, glm::mat4 projection, bool applyTexture, bool applyAO);
+		
 		vector<float> shapeDimension();
 };
 

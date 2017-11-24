@@ -29,11 +29,54 @@ float rotationZ = 0.0f;
 float fieldOfView = 45.0f;
 
 bool mvpchanging = true;
+bool applyTexture = true;
+bool applyAO = true;
+
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    mvpchanging = true;
+    if(key == GLFW_KEY_E && action == GLFW_PRESS) {
+		rotationX = rotationX - 0.10f;
+    }
+    if(key == GLFW_KEY_R && action == GLFW_PRESS) {
+        rotationX = rotationX + 0.10f;
+    }
+    if(key == GLFW_KEY_T && action == GLFW_PRESS) {
+        rotationY = rotationY - 0.10f;
+    }
+    if(key == GLFW_KEY_Y && action == GLFW_PRESS) {
+        rotationY = rotationY + 0.10f;
+    }
+    if(key == GLFW_KEY_O && action == GLFW_PRESS) {
+        rotationZ = rotationZ - 0.10f;
+    }
+    if(key == GLFW_KEY_P && action == GLFW_PRESS) {
+        rotationZ = rotationZ + 0.10f;
+    }
+    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+        applyTexture == true ? applyTexture = false : applyTexture = true;
+    }
+    if(key == GLFW_KEY_X && action == GLFW_PRESS) {
+        applyAO == true ? applyAO = false : applyAO = true;
+    }
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+	// If the window size has changed the Viewport is updated.
+	glViewport(0,0,width,height);
+	mvpchanging = true;
+}
 
 int main(int argc, char* argv[]) {
     GLFWwindow* window = 0;
+    
+    if (argc != 4) {
+        std::cerr << "Insufficient or Incorrect Command Line Arguments detected.\nPlease see the README file.\n";
+        return 1;
+    }
 
     const char* objFile = argv[1];
+    const char* textureFile = argv[2];
+    const char* aoFile = argv[3];
 
     if( !glfwInit() )
 	{
@@ -54,13 +97,8 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
     glfwMakeContextCurrent(window);
-    
-    /*
-    if (argc != 4) {
-        std::cerr << "Insufficient or Incorrect Command Line Arguments detected.\nPlease see the README file.\n";
-        return 1;
-    }
-    */
+  	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, key_callback);
 
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -70,8 +108,12 @@ int main(int argc, char* argv[]) {
 
     ObjModel object = ObjModel();
     object.loadObject(objFile);
+    std::cout << "loadObj successful\n";
+    object.loadTexture(textureFile);
+    std::cout << "loadTex successful\n";
+    object.loadOcclusion(aoFile);
+    std::cout << "loadAO successful\n";
 
-    std::cout << "loadObject successful\n";
     if(object.width > 2 || object.height > 2) {
         float cartesian = 1.0f;
         object.width > object.height ? cartesian = object.width : cartesian = object.height;
@@ -102,7 +144,7 @@ int main(int argc, char* argv[]) {
             mvpchanging = false;
         }
 
-        object.Render(MVP.modelMatrix, MVP.viewMatrix, MVP.projectionMatrix);
+        object.Render(MVP.modelMatrix, MVP.viewMatrix, MVP.projectionMatrix, applyTexture, applyAO);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

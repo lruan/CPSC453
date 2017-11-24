@@ -6,13 +6,22 @@ in vec2 uv;
 
 out vec4 fragmentColor;
 
+uniform sampler2D textureSampler;
+uniform sampler2D aoSampler;
+
+uniform bool textureApplies;
+uniform bool aoApplies;
+
 void main()
 {
     vec3 lightSource = vec3(1.2f, 1.0f, 2.0f);
     vec3 eye = vec3(0.0f, 0.0f, 3.0f);
 
     vec3 light = vec3(1.0f, 1.0f, 1.0f);
-    vec3 object = vec3(0.0f, 1.0f, 0.0f);
+    vec3 objectColor = vec3(0.0f, 1.0f, 0.0f);
+    if(textureApplies) {
+        objectColor = vec3((texture(textureSampler, uv)).rgb);
+    }
 
 // Phong Illumination Logic Provided By:
 // learnopengl.com
@@ -20,6 +29,9 @@ void main()
     // ambient
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * light;
+    if (aoApplies){
+        ambient = ((texture(aoSampler, uv).g) * ambientStrength) * light;
+    }
   	
     // diffuse 
     vec3 norm = normalize(normal);
@@ -34,6 +46,6 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * light;  
         
-    vec3 result = (ambient + diffuse + specular) * object;
+    vec3 result = (ambient + diffuse + specular) * objectColor;
     fragmentColor = vec4(result, 1.0);
 }

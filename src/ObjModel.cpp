@@ -7,20 +7,15 @@
 
 ObjModel::ObjModel() {
 
-	std::cout << "Constructor\n";
-
     programID = LoadShaders("data/vertex.glsl", "data/fragment.glsl");
 
-	std::cout << "constructor1\n";
   	glGenVertexArrays(1, &VertexArrayID);
-	std::cout << "constructor2\n";
+
 	glBindVertexArray(VertexArrayID);
 
 	glGenBuffers(1, &vertexbuffer);
 	glGenBuffers(1, &uvbuffer);
 	glGenBuffers(1, &nbuffer);
-
-	std::cout << "constructor3\n";
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -58,11 +53,27 @@ void ObjModel::loadObject(const char* objFile) {
 }
 
 void ObjModel::loadTexture(const char* texFile) {
+	glBindVertexArray(VertexArrayID);
 	ALICE alice = ALICE();
+	alice.loadImage(texFile);
+
+	Texture = LoadTexture(alice);
+	TextureID = glGetUniformLocation(programID, "textureSampler");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture);
 }
 
 void ObjModel::loadOcclusion(const char* aoFile) {
+	glBindVertexArray(VertexArrayID);
+	ALICE alice = ALICE();
+	alice.loadImage(aoFile);
 
+	AmbientOcclusion = LoadTexture(alice);
+	AmbientOcclusionID = glGetUniformLocation(programID, "aoSampler");
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, AmbientOcclusion);
 }
 
 // Credit to Jayson for helping me through this part.
@@ -119,9 +130,15 @@ vector<float> ObjModel::shapeDimension() {
 	return objectCenter;
 }
 
-void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p) {
+void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p, bool applyTexture, bool applyAO) {
 	glUseProgram(programID);
 	glBindVertexArray(VertexArrayID);
+
+ 	GLuint textureApplies = glGetUniformLocation(programID, "applyTexture");
+ 	glUniform1i(textureApplies, applyTexture);
+  
+  	GLuint aoApplies = glGetUniformLocation(programID, "applyAO");
+  	glUniform1i(aoApplies, applyAO);
 
 	GLuint model = glGetUniformLocation(programID, "M");
 	glUniformMatrix4fv(model, 1, GL_FALSE, &m[0][0]);
@@ -132,11 +149,33 @@ void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p) {
 	GLuint projection = glGetUniformLocation(programID, "P");
 	glUniformMatrix4fv(projection, 1, GL_FALSE, &p[0][0]);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, Texture);
 	glUniform1i(TextureID, 0);
-
-	//glActiveTexture(GL_TEXTURE1);
+	
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, AmbientOcclusion);
+	glUniform1i(AmbientOcclusionID, 1);
 
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size());
-	
+}
 
+GLuint LoadTexture(ALICE alice) {
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	    if(alice.channel == 3)
+        	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, alice.width, alice.height, 0, GL_RGB, GL_UNSIGNED_BYTE, alice.pixels);
+		else if(alice.channel == 4)
+        	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, alice.width, alice.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, alice.pixels);
+    	else if(alice.channel == 1)
+        	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, alice.width, alice.height, 0, GL_RED, GL_UNSIGNED_BYTE, alice.pixels);
+
+	return texture;
 }
