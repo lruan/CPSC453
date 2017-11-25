@@ -1,3 +1,11 @@
+/*
+Main.CPP
+CPSC 453 - Homework 3
+Written by Mingxi (Logan) Ruan
+
+Code Contributions and Sources listed where appropriate.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -29,8 +37,14 @@ float rotationZ = 0.0f;
 float fieldOfView = 45.0f;
 
 bool mvpchanging = true;
-bool applyTexture = true;
-bool applyAO = true;
+int applyTexture = 1;
+int applyAO = 0;
+
+/*
+    Key Callback FUnction
+    Binds keys to GLFW conrols.
+    Source:  http://www.opengl.org
+*/
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     mvpchanging = true;
@@ -53,18 +67,34 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         rotationZ = rotationZ + 0.10f;
     }
     if(key == GLFW_KEY_A && action == GLFW_PRESS) {
-        applyTexture == true ? applyTexture = false : applyTexture = true;
+        applyTexture == 1 ? applyTexture = 0 : applyTexture = 1;
     }
     if(key == GLFW_KEY_X && action == GLFW_PRESS) {
-        applyAO == true ? applyAO = false : applyAO = true;
+        applyAO == 1 ? applyAO = 0 : applyAO = 1;
+    }
+    if(key == GLFW_KEY_UP && action == GLFW_PRESS) {
+        fieldOfView >= 3.0f ? fieldOfView -= 2.5f : fieldOfView = fieldOfView;
+    }
+    if(key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+        fieldOfView <= 90.0f ? fieldOfView += 2.5f : fieldOfView = fieldOfView;
     }
 }
+
+/*
+    Framebuffer Size Callback
+    Relevant for Window Resizing cases.
+    Source:  http://www.opengl.org
+*/
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	// If the window size has changed the Viewport is updated.
 	glViewport(0,0,width,height);
 	mvpchanging = true;
 }
+
+/*
+    Main Function
+*/
 
 int main(int argc, char* argv[]) {
     GLFWwindow* window = 0;
@@ -106,13 +136,7 @@ int main(int argc, char* argv[]) {
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
 
-    ObjModel object = ObjModel();
-    object.loadObject(objFile);
-    std::cout << "loadObj successful\n";
-    object.loadTexture(textureFile);
-    std::cout << "loadTex successful\n";
-    object.loadOcclusion(aoFile);
-    std::cout << "loadAO successful\n";
+    ObjModel object = ObjModel(objFile, textureFile, aoFile);
 
     if(object.width > 2 || object.height > 2) {
         float cartesian = 1.0f;
@@ -125,6 +149,8 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if(mvpchanging) {
+
+            // Credits to Jayson for helping me with the logic for model centering.
             MVP.modelMatrix = glm::translate(MVP.modelMatrix, glm::vec3(object.objectCenter.at(0), 
                                                                         object.objectCenter.at(1), 
                                                                         object.objectCenter.at(2)));

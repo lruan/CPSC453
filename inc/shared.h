@@ -1,3 +1,11 @@
+/*
+shared.H
+CPSC 453 - Homework 3
+Written by Mingxi (Logan) Ruan
+
+Shared includes used by all other files.
+*/
+
 #ifndef SHARED_H
 #define SHARED_H
 
@@ -27,6 +35,11 @@ using std::vector;
 #include <glm/gtc/type_ptr.hpp>
 
 #include "alice.h"
+
+/*
+    Loading functions ported from HW2, placed in a slightly-less-awkward spot.
+    (still quite awkward)
+*/
 
 GLuint LoadShaders(const char* vertex, const char* fragment);
 GLuint LoadTexture (ALICE alice);

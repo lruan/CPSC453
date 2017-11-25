@@ -1,3 +1,14 @@
+/*
+objloader.HPP
+CPSC 453 - Homework 3
+Written by Someone
+
+Code Contributions and Sources listed where appropriate.
+*/
+
+// The entirety of this file is taken from:
+// http://www.opengl-tutorials.org
+
 #ifndef OBJLOADER_H
 #define OBJLOADER_H
 

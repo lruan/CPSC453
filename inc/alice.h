@@ -7,6 +7,11 @@
 
 #include <GLFW/glfw3.h>
 
+/*
+    ALICE class from HW2.
+    It's a real class now!  It's got its own home and...
+*/
+
 class ALICE {
     public:
         unsigned char* pixels;

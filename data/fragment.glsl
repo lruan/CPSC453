@@ -9,18 +9,22 @@ out vec4 fragmentColor;
 uniform sampler2D textureSampler;
 uniform sampler2D aoSampler;
 
-uniform bool textureApplies;
-uniform bool aoApplies;
+uniform int textureApplies;
+uniform int aoApplies;
 
 void main()
 {
-    vec3 lightSource = vec3(1.2f, 1.0f, 2.0f);
+    // lightsource defined arbitrarily.  Camera position placed at z = 3.
+    vec3 lightSource = vec3(1.0f, 1.0f, 1.0f);
     vec3 eye = vec3(0.0f, 0.0f, 3.0f);
 
     vec3 light = vec3(1.0f, 1.0f, 1.0f);
-    vec3 objectColor = vec3(0.0f, 1.0f, 0.0f);
-    if(textureApplies) {
-        objectColor = vec3((texture(textureSampler, uv)).rgb);
+    vec3 object;
+    if(textureApplies == 0) {
+        object = vec3(0.0f, 1.0f, 0.0f);
+    }
+    if(textureApplies == 1) {
+        object = vec3((texture(textureSampler, uv)).rgb);
     }
 
 // Phong Illumination Logic Provided By:
@@ -28,8 +32,11 @@ void main()
 
     // ambient
     float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * light;
-    if (aoApplies){
+    vec3 ambient;
+    if (aoApplies == 0) {
+        ambient = ambientStrength * light;
+    }
+    if (aoApplies == 1){
         ambient = ((texture(aoSampler, uv).g) * ambientStrength) * light;
     }
   	
@@ -46,6 +53,6 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * light;  
         
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * object;
     fragmentColor = vec4(result, 1.0);
 }

@@ -1,3 +1,18 @@
+/*
+objloader.cpp
+CPSC 453 - Homework 3
+Written by Someone
+
+Code Contributions and Sources listed where appropriate.
+*/
+
+/*
+	THE ENTIRETY OF THIS FILE IS TAKEN FROM:
+	http://www.opengl-tutorials.org
+
+	To assist with object loading.
+*/
+
 #include <vector>
 #include <stdio.h>
 #include <string>

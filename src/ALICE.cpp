@@ -1,3 +1,17 @@
+/*
+ALICE.CPP
+CPSC 453 - Homework 3
+Written by Mingxi (Logan) Ruan
+
+Code Contributions and Sources listed where appropriate.
+*/
+
+/*
+    Class logic for ALICE.h.
+    Moved out of main.cpp from HW2.
+    Otherwise identiacl.
+*/
+
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <GLFW/glfw3.h>

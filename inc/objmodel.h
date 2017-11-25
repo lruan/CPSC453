@@ -1,3 +1,11 @@
+/*
+objmodel.H
+CPSC 453 - Homework 3
+Written by Mingxi (Logan) Ruan
+
+Code Contributions and Sources listed where appropriate.
+*/
+
 #ifndef OBJMODEL_H
 #define OBJMODEL_H
 
@@ -8,11 +16,16 @@
 
 using std::vector;
 
+/*
+	ObjModel Class
+
+	Handles Rendering and Vertex Handling Logic.
+*/
 class ObjModel {
 	public:
 		float width, height;
 
-		ObjModel();
+		ObjModel(const char* objFile, const char* texFile, const char* aoFile);
 
 //		bool LoadObjModel(const char * file);
 
@@ -31,11 +44,7 @@ class ObjModel {
 	    vector<glm::vec2> uvvertex;
 		vector<glm::vec3> n;
 
-		void loadObject(const char* objFile);
-		void loadTexture(const char* texFile);
-		void loadOcclusion(const char* aoFile);
-
-		void Render(glm::mat4 model, glm::mat4 view, glm::mat4 projection, bool applyTexture, bool applyAO);
+		void Render(glm::mat4 model, glm::mat4 view, glm::mat4 projection, int useTexture, int useAO);
 		
 		vector<float> shapeDimension();
 };

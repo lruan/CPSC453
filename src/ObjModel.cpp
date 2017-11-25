@@ -1,11 +1,23 @@
+/*
+objmodel.H
+CPSC 453 - Homework 3
+Written by Mingxi (Logan) Ruan
+
+Code Contributions and Sources listed where appropriate.
+*/
+
 #include "objmodel.h"
 #include "objloader.hpp"
 #include "shared.h"
 
 #include <GLFW/glfw3.h>
-// Constructor copy-pasta'd from HW2, reorganized.
 
-ObjModel::ObjModel() {
+/*
+	Constructor copy-pasta'd from HW2, reorganized.
+	Expanded to include logic for loading texture and ao files in addition to objfile.
+*/
+
+ObjModel::ObjModel(const char* objFile, const char* texFile, const char* aoFile) {
 
     programID = LoadShaders("data/vertex.glsl", "data/fragment.glsl");
 
@@ -28,9 +40,8 @@ ObjModel::ObjModel() {
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, nbuffer);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-}
 
-void ObjModel::loadObject(const char* objFile) {
+	// Load Object File
 
 	if(!loadOBJ(objFile, vertex, uvvertex, n))
 	{
@@ -40,8 +51,6 @@ void ObjModel::loadObject(const char* objFile) {
 
 	shapeDimension();
 
-	glBindVertexArray(VertexArrayID);
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(glm::vec3), &vertex[0], GL_STATIC_DRAW);
 
@@ -50,33 +59,39 @@ void ObjModel::loadObject(const char* objFile) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, nbuffer);
 	glBufferData(GL_ARRAY_BUFFER, n.size() * sizeof(glm::vec3), &n[0], GL_STATIC_DRAW);
-}
 
-void ObjModel::loadTexture(const char* texFile) {
-	glBindVertexArray(VertexArrayID);
-	ALICE alice = ALICE();
-	alice.loadImage(texFile);
+	// Load Texture File
+	// Code nearly identical to HW2 logic.
+	
+	ALICE aliceTexture = ALICE();
+	aliceTexture.loadImage(texFile);
 
-	Texture = LoadTexture(alice);
+	Texture = LoadTexture(aliceTexture);
 	TextureID = glGetUniformLocation(programID, "textureSampler");
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture);
-}
 
-void ObjModel::loadOcclusion(const char* aoFile) {
-	glBindVertexArray(VertexArrayID);
-	ALICE alice = ALICE();
-	alice.loadImage(aoFile);
+	// Load Ambient Occlusion File
+	// Code nearly identical to HW2 logic.
 
-	AmbientOcclusion = LoadTexture(alice);
+	ALICE aliceAO = ALICE();
+	aliceAO.loadImage(aoFile);
+
+	AmbientOcclusion = LoadTexture(aliceAO);
 	AmbientOcclusionID = glGetUniformLocation(programID, "aoSampler");
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, AmbientOcclusion);
 }
+/*
 
-// Credit to Jayson for helping me through this part.
+	Dimension Shaping to fit Model within Viewer Frame.
+	Hardcoded comparisons to set new object center based on averaged coordinate values.
+
+Credit to Jayson for helping me through this part.
+
+*/
 vector<float> ObjModel::shapeDimension() {
 	objectCenter.clear();
 
@@ -130,15 +145,20 @@ vector<float> ObjModel::shapeDimension() {
 	return objectCenter;
 }
 
-void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p, bool applyTexture, bool applyAO) {
+
+/*
+	Rendering function.
+	Logic taken from a huge chunk of HW2's main loop.
+*/
+void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p, int useTexture, int useAO) {
 	glUseProgram(programID);
 	glBindVertexArray(VertexArrayID);
 
- 	GLuint textureApplies = glGetUniformLocation(programID, "applyTexture");
- 	glUniform1i(textureApplies, applyTexture);
+ 	GLuint textureApplies = glGetUniformLocation(programID, "textureApplies");
+ 	glUniform1i(textureApplies, useTexture);
   
-  	GLuint aoApplies = glGetUniformLocation(programID, "applyAO");
-  	glUniform1i(aoApplies, applyAO);
+  	GLuint aoApplies = glGetUniformLocation(programID, "aoApplies");
+  	glUniform1i(aoApplies, useAO);
 
 	GLuint model = glGetUniformLocation(programID, "M");
 	glUniformMatrix4fv(model, 1, GL_FALSE, &m[0][0]);
@@ -160,6 +180,11 @@ void ObjModel::Render(glm::mat4 m, glm::mat4 v, glm::mat4 p, bool applyTexture, 
 	glDrawArrays(GL_TRIANGLES, 0, vertex.size());
 }
 
+/*
+	Texture loading function for Texture and AO files.
+	Entirely taken from HW2'S logic.
+	An additional one-color channel is added to account for AO.
+*/
 GLuint LoadTexture(ALICE alice) {
     GLuint texture;
     glGenTextures(1, &texture);
